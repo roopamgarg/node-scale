@@ -11,7 +11,17 @@ var http = require('http'),
     slaves = [];
 
 function dispatchChunksToSlaves() {
-    // TODO: implement me.
+    var i, len;
+
+    for (i = 0, len = kCpuCount; i < len; i++) {
+        console.log('sending to slave');
+        slaves[i].send({current: chunks[i], next: chunks[i+1]});
+        console.log('sent to slave');
+    }
+
+    slaves.splice(0, kCpuCount);
+
+    console.log('spliced slaves');
 }
 
 function consumeStream() {
@@ -28,7 +38,7 @@ function consumeStream() {
         res.on('data', function (chunk) {
             //console.log('data:' + chunk);
 
-            chunks.push(data);
+            chunks.push(chunk);
         });
 
         res.on('error', function(err) {
@@ -47,19 +57,20 @@ function consumeStream() {
 }
 
 function startForking() {
-    var i, len, worker;
+    var i, len;
 
     if (cluster.isMaster) {
         consumeStream();
 
         for(i = 0, len = kCpuCount; i < len; i++) {
-            worker = cluster.fork();
-            slaves.push(worker);
-
-            // TODO: what if a slave dies?
+            slaves.push(cluster.fork());
         }
     } else {
-
+        process.on('message', function(data) {
+            console.log('got message');
+            console.log(data);
+            console.log(cluster.worker.id);
+        });
     }
 }
 
