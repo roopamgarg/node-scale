@@ -51,7 +51,7 @@ fetchData().then(function(buffer) {
         response.setHeader('Transfer-Encoding', 'chunked');
 
         var id = setInterval(function() {
-            response.write('<p>' + getNextChunk() + '</p>');
+            response.write(getNextChunk());
         }, 10);
 
         request.on('close', function() {
