@@ -1,7 +1,5 @@
 'use strict';
 
-var wordCount = 0;
-
 function countWords(previous, next) {
     var kWhitespaceRegExp = /\S/,
         isPreviousEndsWithWhiteSpace = kWhitespaceRegExp.test(

@@ -70,7 +70,11 @@ function startForking() {
             console.log('got message');
             console.log(data);
             console.log(cluster.worker.id);
+
+            // TODO: do a remote calculation, and notify the master with the result when you're done.
         });
+
+        // TODO: create an HTTP server for each slave, that gets an aggregated data from the master.
     }
 }
 
