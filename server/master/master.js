@@ -63,7 +63,9 @@ function startForking() {
         consumeStream();
 
         for(i = 0, len = kCpuCount; i < len; i++) {
+            console.log('pushing');
             slaves.push(cluster.fork());
+            console.log(slaves.length);
         }
     } else {
         process.on('message', function(data) {
