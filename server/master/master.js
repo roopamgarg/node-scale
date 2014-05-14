@@ -1,15 +1,84 @@
 'use strict';
 
 var http = require('http'),
+    os = require('os'),
+    cluster = require('cluster'),
 
-    kStreamUrl = 'http://192.168.56.101';
+    kCpuCount = os.cpus().length,
 
-http.createServer(function (request, response) {
-    response.setHeader('Content-Type', 'text/html');
+    chunks = [],
 
-    response.end('<p><b>' + 100 + '</b> total words processed so far.</p>');
-}).listen(8080);
+    slaves = [];
 
+function dispatchChunksToSlaves() {
+    var i, len;
+
+    for (i = 0, len = kCpuCount; i < len; i++) {
+        console.log('sending to slave');
+        slaves[i].send({current: chunks[i], next: chunks[i+1]});
+        console.log('sent to slave');
+    }
+
+    slaves.splice(0, kCpuCount);
+
+    console.log('spliced slaves');
+}
+
+function consumeStream() {
+    var options = {
+        host: 'localhost',
+        port: 8080,
+        path: '/',
+        method: 'GET'
+    },
+
+    req = http.request(options, function(res) {
+        res.setEncoding('utf8');
+
+        res.on('data', function (chunk) {
+            //console.log('data:' + chunk);
+
+            chunks.push(chunk);
+        });
+
+        res.on('error', function(err) {
+            console.log('Error...');
+        });
+    });
+
+    req.write('');
+    req.end();
+
+    setInterval(function() {
+        if ( chunks.length > kCpuCount + 1 ) {
+            dispatchChunksToSlaves();
+        }
+    }, 100);
+}
+
+function startForking() {
+    var i, len;
+
+    if (cluster.isMaster) {
+        consumeStream();
+
+        for(i = 0, len = kCpuCount; i < len; i++) {
+            slaves.push(cluster.fork());
+        }
+    } else {
+        process.on('message', function(data) {
+            console.log('got message');
+            console.log(data);
+            console.log(cluster.worker.id);
+
+            // TODO: do a remote calculation, and notify the master with the result when you're done.
+        });
+
+        // TODO: create an HTTP server for each slave, that gets an aggregated data from the master.
+    }
+}
+
+startForking();
 
 /*
     if cluster is master
