@@ -19,9 +19,9 @@ function dispatchChunksToSlaves() {
         console.log('sent to slave');
     }
 
-    slaves.splice(0, kCpuCount);
+    chunks.splice(0, kCpuCount);
 
-    console.log('spliced slaves');
+    console.log('spliced chunks');
 }
 
 function consumeStream() {
