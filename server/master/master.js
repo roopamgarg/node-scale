@@ -60,13 +60,13 @@ function startForking() {
     var i, len;
 
     if (cluster.isMaster) {
-        consumeStream();
-
         for(i = 0, len = kCpuCount; i < len; i++) {
             console.log('pushing');
             slaves.push(cluster.fork());
             console.log(slaves.length);
         }
+
+        consumeStream();
     } else {
         process.on('message', function(data) {
             console.log('got message');
