@@ -26,8 +26,8 @@ function dispatchChunksToSlaves() {
 
 function consumeStream() {
     var options = {
-        host: 'localhost',
-        port: 8080,
+        host: '192.168.56.101',
+        port: 80,
         path: '/',
         method: 'GET'
     },
@@ -36,8 +36,8 @@ function consumeStream() {
         res.setEncoding('utf8');
 
         res.on('data', function (chunk) {
-            //console.log('data:' + chunk);
 
+            //console.log('data:' + chunk);
             chunks.push(chunk);
         });
 

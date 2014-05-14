@@ -1,7 +1,5 @@
 'use strict';
 
-// TODO: use PM2 to replicate this.
-
 var Q = require('q'),
     fs = require('fs'),
     http = require('http'),
@@ -59,18 +57,3 @@ fetchData().then(function(buffer) {
         });
     }).listen(80);
 });
-
-/*
-1... wait
-1,2 -> #1
-1,2,3 -> #2
-1,2,3,4 -> #3
-1,2,3,4,5 -> #1
-
-
-1: lorem ipsum dol   | send to process 1 --> wc - 1
-2: or sit ame        |  | send to process 2 --> wc - 1
-3: t velit verde ipsum  | | send to process 3 --> wc
-4:  dolorem ame           |
-5: t lorem
- */
