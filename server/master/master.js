@@ -5,7 +5,7 @@
 var http = require('http'),
     os = require('os'),
     cluster = require('cluster'),
-    WebSocket = require('ws'),
+    websocket = require('websocket'),
 
     kCpuCount = os.cpus().length,
 
@@ -63,18 +63,35 @@ function startForking() {
     var i, len;
 
     if (cluster.isMaster) {
+        var globalWordCounter = 0;
+
         for(i = 0, len = kCpuCount; i < len; i++) {
         //    console.log('pushing');
             slaves.push(cluster.fork());
         //    console.log(slaves.length);
         }
 
+        // TODO: rename slave with worker
+        slaves.forEach(function(slave) {
+            slave.on('message', function(data) {
+                console.log('got message');
+                console.log(data);
+
+                var action = data.action,
+                    value = data.payload;
+
+                globalWordCounter += value;
+
+                slaves.forEach(function(slave) {
+                    slave.send({action:'update', payload: globalWordCounter});
+                });
+            });
+        });
+
         consumeStream();
     } else {
-        console.log('creating new websocket');
 
-
-        var WebSocketClient = require('websocket').client;
+        var WebSocketClient = websocket.client;
 
         var client = new WebSocketClient();
 
@@ -85,110 +102,51 @@ function startForking() {
         client.on('connect', function(connection) {
             client.connection = connection;
 
-            console.log('WebSocket client connected');
             connection.on('error', function(error) {
-                console.log("Connection Error: " + error.toString());
+                console.log('Connection Error: ' + error.toString());
             });
+
             connection.on('close', function() {
-                console.log('echo-protocol Connection Closed');
+                console.log('word-count-protocol: Connection Closed.');
+
+                client = new WebSocketClient();
             });
+
             connection.on('message', function(message) {
-                if (message.type === 'utf8') {
-                    console.log("Received: '" + message.utf8Data + "'");
-                }
+                var count = +message.utf8Data;
+
+                process.send({action:"increment", payload: count});
+
+                console.log('increment request sent');
             });
-//
-//            function sendNumber() {
-//                if (connection.connected) {
-//                    var number = Math.round(Math.random() * 0xFFFFFF);
-//                    connection.sendUTF(number.toString());
-//                    setTimeout(sendNumber, 1000);
-//                }
-//            }
-//            sendNumber();
         });
 
-        client.connect('ws://192.168.56.104:8080/', 'echo-protocol');
+        client.connect('ws://192.168.56.105/', 'word-count-protocol');
+
+        var numWords = 0;
 
         process.on('message', function(data) {
-            client.connection && client.connection.sendUTF(JSON.stringify((data)));
+            if (data.action) {
+                numWords = data.payload;
+
+                console.log(numWords);
+
+                return;
+            }
+
+            if (client.connection) {
+                client.connection.sendUTF(JSON.stringify(data));
+            }
         });
 
+        var server = http.createServer(function(request, response) {
+            response.writeHead(200, {'Content-Type': 'text/html'});
+            response.write('<h1>'+numWords+'</h1>');
+            response.end();
+        });
 
-
-//
-//        var ws = new WebSocket('ws://192.168.56.105');
-//
-//        var isOpened = false;
-//
-//        console.log('created new websocket');
-//
-//        process.on('message', function(data) {
-//            //console.log('got message');
-//            //console.log(data);
-//            //console.log(cluster.worker.id);
-//
-//            try {
-//                if ( isOpened ) {
-//                    ws.send('a', {binary: false, mask: false}, function() {
-//                        console.log('cb');
-//                        console.log(arguments);
-//                        console.log('----')
-//                    });
-//                    console.log('socket is opened');
-//                    //isOpened = false;
-//                }
-//                //ws.send(data);
-//            } catch (ignore) {
-//
-//            }
-//
-//            // TODO: do a remote calculation, and notify the master with the result when you're done.
-//        });
-//
-//
-//        ws.on('open', function() {
-//            console.log('opened socket');
-//
-//            //ws.send('foo');
-//
-//            isOpened = true;
-//        });
-//
-//        ws.on('message', function(message) {
-//            console.log('received: %s', message);
-//        });
-//
-//        ws.on('error', function(er) {
-//            console.log('socket error!');
-//        });
-//
-//        ws.on('close', function() {
-//            console.log('socket being closed');
-//        })
-
-        setInterval(function() {
-
-        }, 100);
+        server.listen(80);
     }
 }
 
 startForking();
-
-/*
-    if cluster is master
-        connect to infinite stream
-        spawn workers
-        while new chunks arrive
-            send chunks to workers in round-robin fashion
-
-        when worker is done calculation
-             process.send({action:'word-count', from: cluster.worker.id});
-             where the master will listen to this message.
-
-        when master gets a 'word-count' message, it updates its internal word count
-        representation.
-
-        word-count calculation is done on different servers where the process
-        is forked with pm2
- */
