@@ -1,8 +1,11 @@
 'use strict';
 
+// 192.168.56.104
+
 var http = require('http'),
     os = require('os'),
     cluster = require('cluster'),
+    WebSocket = require('ws'),
 
     kCpuCount = os.cpus().length,
 
@@ -26,8 +29,8 @@ function dispatchChunksToSlaves() {
 
 function consumeStream() {
     var options = {
-        host: 'localhost',
-        port: 8080,
+        host: '192.168.56.109',
+        port: 80,
         path: '/',
         method: 'GET'
     },
@@ -66,15 +69,27 @@ function startForking() {
             slaves.push(cluster.fork());
         }
     } else {
-        process.on('message', function(data) {
-            console.log('got message');
-            console.log(data);
-            console.log(cluster.worker.id);
+        var WebSocket = require('ws'),
+            ws = new WebSocket('ws://192.168.56.105');
 
-            // TODO: do a remote calculation, and notify the master with the result when you're done.
+        ws.on('open', function() {
+            process.on('message', function(data) {
+                console.log('got message');
+                console.log(data);
+                console.log(cluster.worker.id);
+
+                ws.send(data);
+
+                // TODO: do a remote calculation, and notify the master with the result when you're done.
+            });
         });
 
-        // TODO: create an HTTP server for each slave, that gets an aggregated data from the master.
+        ws.on('message', function(data, flags) {
+            console.log("message from web socket:" );
+            console.log(data);
+            // flags.binary will be set if a binary data is received
+            // flags.masked will be set if the data was masked
+        });
     }
 }
 

@@ -73,4 +73,9 @@ fetchData().then(function(buffer) {
 3: t velit verde ipsum  | | send to process 3 --> wc
 4:  dolorem ame           |
 5: t lorem
+
+
+ note:
+ you need to `pm2 startup ubuntu` and restart the service to run
+ properly on port 80
  */

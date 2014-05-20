@@ -1,0 +1,14 @@
+{
+  "name": "worker",
+  "version": "0.0.0",
+  "description": "This is a simple worker to count the number of words in a stream.",
+  "main": "worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Volkan Ozcelik",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "~0.4.31"
+  }
+}

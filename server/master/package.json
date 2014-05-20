@@ -1,0 +1,14 @@
+{
+  "name": "master",
+  "version": "0.0.0",
+  "description": "The master process that consumes the stream, buffers data, and returns another filtered stream.",
+  "main": "master.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Volkan Ozcelik",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "~0.4.31"
+  }
+}

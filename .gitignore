@@ -1,3 +1,7 @@
 /server/stream/node_modules/
 
 /.idea/
+
+/server/master/node_modules/
+
+/server/worker/node_modules/
