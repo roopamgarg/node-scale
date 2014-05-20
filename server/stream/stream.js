@@ -1,7 +1,5 @@
 'use strict';
 
-// TODO: use PM2 to replicate this.
-
 var Q = require('q'),
     fs = require('fs'),
     http = require('http'),

@@ -22,9 +22,9 @@ function dispatchChunksToSlaves() {
         console.log('sent to slave');
     }
 
-    slaves.splice(0, kCpuCount);
+    chunks.splice(0, kCpuCount);
 
-    console.log('spliced slaves');
+    console.log('spliced chunks');
 }
 
 function consumeStream() {
@@ -39,8 +39,8 @@ function consumeStream() {
         res.setEncoding('utf8');
 
         res.on('data', function (chunk) {
-            //console.log('data:' + chunk);
 
+            //console.log('data:' + chunk);
             chunks.push(chunk);
         });
 
@@ -63,11 +63,13 @@ function startForking() {
     var i, len;
 
     if (cluster.isMaster) {
-        consumeStream();
-
         for(i = 0, len = kCpuCount; i < len; i++) {
+            console.log('pushing');
             slaves.push(cluster.fork());
+            console.log(slaves.length);
         }
+
+        consumeStream();
     } else {
         var WebSocket = require('ws'),
             ws = new WebSocket('ws://192.168.56.105');
