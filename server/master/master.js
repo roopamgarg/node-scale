@@ -17,14 +17,14 @@ function dispatchChunksToSlaves() {
     var i, len;
 
     for (i = 0, len = kCpuCount; i < len; i++) {
-        console.log('sending to slave');
+        //console.log('sending to slave');
         slaves[i].send({current: chunks[i], next: chunks[i+1]});
-        console.log('sent to slave');
+        //console.log('sent to slave');
     }
 
     chunks.splice(0, kCpuCount);
 
-    console.log('spliced chunks');
+    //console.log('spliced chunks');
 }
 
 function consumeStream() {
@@ -64,34 +64,112 @@ function startForking() {
 
     if (cluster.isMaster) {
         for(i = 0, len = kCpuCount; i < len; i++) {
-            console.log('pushing');
+        //    console.log('pushing');
             slaves.push(cluster.fork());
-            console.log(slaves.length);
+        //    console.log(slaves.length);
         }
 
         consumeStream();
     } else {
-        var WebSocket = require('ws'),
-            ws = new WebSocket('ws://192.168.56.105');
+        console.log('creating new websocket');
 
-        ws.on('open', function() {
-            process.on('message', function(data) {
-                console.log('got message');
-                console.log(data);
-                console.log(cluster.worker.id);
 
-                ws.send(data);
+        var WebSocketClient = require('websocket').client;
 
-                // TODO: do a remote calculation, and notify the master with the result when you're done.
+        var client = new WebSocketClient();
+
+        client.on('connectFailed', function(error) {
+            console.log('Connect Error: ' + error.toString());
+        });
+
+        client.on('connect', function(connection) {
+            client.connection = connection;
+
+            console.log('WebSocket client connected');
+            connection.on('error', function(error) {
+                console.log("Connection Error: " + error.toString());
             });
+            connection.on('close', function() {
+                console.log('echo-protocol Connection Closed');
+            });
+            connection.on('message', function(message) {
+                if (message.type === 'utf8') {
+                    console.log("Received: '" + message.utf8Data + "'");
+                }
+            });
+//
+//            function sendNumber() {
+//                if (connection.connected) {
+//                    var number = Math.round(Math.random() * 0xFFFFFF);
+//                    connection.sendUTF(number.toString());
+//                    setTimeout(sendNumber, 1000);
+//                }
+//            }
+//            sendNumber();
         });
 
-        ws.on('message', function(data, flags) {
-            console.log("message from web socket:" );
-            console.log(data);
-            // flags.binary will be set if a binary data is received
-            // flags.masked will be set if the data was masked
+        client.connect('ws://192.168.56.104:8080/', 'echo-protocol');
+
+        process.on('message', function(data) {
+            client.connection && client.connection.sendUTF(JSON.stringify((data)));
         });
+
+
+
+//
+//        var ws = new WebSocket('ws://192.168.56.105');
+//
+//        var isOpened = false;
+//
+//        console.log('created new websocket');
+//
+//        process.on('message', function(data) {
+//            //console.log('got message');
+//            //console.log(data);
+//            //console.log(cluster.worker.id);
+//
+//            try {
+//                if ( isOpened ) {
+//                    ws.send('a', {binary: false, mask: false}, function() {
+//                        console.log('cb');
+//                        console.log(arguments);
+//                        console.log('----')
+//                    });
+//                    console.log('socket is opened');
+//                    //isOpened = false;
+//                }
+//                //ws.send(data);
+//            } catch (ignore) {
+//
+//            }
+//
+//            // TODO: do a remote calculation, and notify the master with the result when you're done.
+//        });
+//
+//
+//        ws.on('open', function() {
+//            console.log('opened socket');
+//
+//            //ws.send('foo');
+//
+//            isOpened = true;
+//        });
+//
+//        ws.on('message', function(message) {
+//            console.log('received: %s', message);
+//        });
+//
+//        ws.on('error', function(er) {
+//            console.log('socket error!');
+//        });
+//
+//        ws.on('close', function() {
+//            console.log('socket being closed');
+//        })
+
+        setInterval(function() {
+
+        }, 100);
     }
 }
 

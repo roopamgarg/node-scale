@@ -27,4 +27,8 @@ wss.on('connection', function(ws) {
 
         ws.send(42);
     });
+
+    ws.on('error', function() {
+        console.log('real error');
+    });
 });
