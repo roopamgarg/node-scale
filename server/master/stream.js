@@ -24,10 +24,15 @@ function dispatchChunksAsync(monkeys) {
 }
 
 exports.consume = function(monkeys) {
+    console.log('Initializing stream consumer...');
 
     // Populates `chunks` collection at a constant speed.
     populateChunksAsync();
 
+    console.log('Initialized chunk generation request');
+
     // Consumes `chunks` collection by pumping them to monkeys.
     dispatchChunksAsync(monkeys);
+
+    console.log('Initialized stream consumer.');
 };

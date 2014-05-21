@@ -1,6 +1,7 @@
 'use strict';
 
 var websocket = require('websocket'),
+    cluster = require('cluster'),
 
     protocol = require('../../../../config/protocol'),
     actionEnum = require('../../../../config/action'),
@@ -33,8 +34,6 @@ exports.initialize = function(ip) {
                 payload: +message.utf8Data,
                 from: cluster.worker.id
             });
-
-            console.log('increment request sent');
         });
     });
 

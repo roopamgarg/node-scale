@@ -41,12 +41,20 @@ function sendInitializationMessage(from) {
         if (monkey.id === from) {
             computeNewServerIndex();
 
+            console.log('Monkey ' +
+                monkey.id + ' will talk to ' +
+                clusterConfig.ip.workers[currentServerIndex]
+            );
+
             monkey.send({
                 action: actionEnum.INITIALIZE,
                 payload: clusterConfig.ip.workers[currentServerIndex]
             });
         }
+
     });
+
+    console.log('Sent initialization messages to monkey ' + from);
 }
 
 function register(monkey) {
@@ -60,6 +68,8 @@ function register(monkey) {
 
         switch (action) {
             case actionEnum.GET_SERVER_META:
+                console.log('Server meta came for monkey ' + monkey.id );
+
                 sendInitializationMessage(from);
 
                 break;
@@ -77,6 +87,8 @@ function registerMonkeys() {
     monkeys.forEach(function(monkey) {
         register(monkey);
     });
+
+    console.log('Registered the entire habitat!');
 }
 
 exports.initialize = function() {
