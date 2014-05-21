@@ -3,6 +3,8 @@
 var WebSocketServer = require('websocket').server,
     http = require('http'),
 
+    protocol = require('../config/protocol'),
+
     server, wsServer;
 
 function isOriginAllowed() {return true;}
@@ -24,15 +26,22 @@ wsServer.on('request', function(request) {
         return;
     }
 
-    var connection = request.accept('word-count-protocol', request.origin);
+    var connection = request.accept(protocol.WORD_COUNT, request.origin);
 
     connection.on('message', function(message) {
-        if (message.type === 'utf8') {
-            var json = JSON.parse(message.utf8Data);
+        var json;
 
-            connection.sendUTF('' + util.countWords(json.current, json.next));
-        } else if (message.type === 'binary') {
-            connection.sendBytes(message.binaryData);
+        switch (message.type) {
+            case 'utf8':
+                json = JSON.parse(message.utf8Data);
+
+                connection.sendUTF('' + util.countWords(json.current, json.next));
+
+                break;
+            case 'binary':
+                connection.sendBytes(message.binaryData);
+
+                break;
         }
     });
 

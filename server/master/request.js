@@ -6,13 +6,9 @@ exports.create = function(options, chunks) {
     var req = http.request(options, function(res) {
         res.setEncoding('utf8');
 
-        res.on('data', function (chunk) {
-            chunks.push(chunk);
-        });
+        res.on('data', function (chunk) {chunks.push(chunk);});
 
-        res.on('error', function(err) {
-            console.log('Error...');
-        });
+        res.on('error', function() {console.log('Error...');});
     });
 
     req.write('');

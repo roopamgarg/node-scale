@@ -13,3 +13,6 @@ sudo pm2 startup ubuntu
 ~~~
 /usr/bin/sudo -u volkan /usr/local/bin/forever start /home/volkan/PROJECTS/node-scale/server/master/master.js
 ~~~
+
+ you need to `pm2 startup ubuntu` and restart the service to run
+ properly on port 80

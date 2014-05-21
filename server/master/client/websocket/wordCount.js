@@ -1,9 +1,14 @@
 'use strict';
 
+var protocol = require('../../../../config/protocol'),
+    actionEnum = require('../../../../config/action'),
+
+    client = null;
+
 exports.initialize = function(ip) {
     var WebSocketClient = websocket.client;
 
-    var client = new WebSocketClient();
+    client = new WebSocketClient();
 
     client.on('connectFailed', function(error) {
         console.log('Connect Error: ' + error.toString());
@@ -21,13 +26,19 @@ exports.initialize = function(ip) {
         });
 
         connection.on('message', function(message) {
-            var count = +message.utf8Data;
-
-            process.send({action:"increment", payload: count, from: cluster.worker.id});
+            process.send({
+                action: actionEnum.INCREMENT,
+                payload: +message.utf8Data,
+                from: cluster.worker.id
+            });
 
             console.log('increment request sent');
         });
     });
 
-    client.connect('ws://' + ip + '/', 'word-count-protocol');
+    client.connect('ws://' + ip + '/', protocol.WORD_COUNT);
+
+    return client;
 };
+
+exports.getCurrent = function() {return client;};

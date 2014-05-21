@@ -1,19 +1,13 @@
 'use strict';
 
-// 192.168.56.104
-
 var cluster = require('cluster'),
-    swarm = require('./swarm'),
 
-    wordCountServer = require('./server/http/wordCount');
+    habitat = require('./cluster/habitat'),
+    server = require('./server/http/words');
 
-
-function startForking() {
-    if (cluster.isMaster) {
-        swarm.initialize();
-    } else {
-        wordCountServer.create(client);
-    }
+if (cluster.isMaster) {
+    habitat.initialize();
+} else {
+    server.initialize();
 }
 
-startForking();

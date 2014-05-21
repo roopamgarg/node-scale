@@ -9,7 +9,7 @@ function fetchData() {
     var deferred = Q.defer(),
         filePath = path.join( __dirname, "../../data/seed.txt" );
 
-    fs.readFile(filePath, function (err, data) {
+    fs.readFile(filePath, function(err, data) {
         if (err) {
             throw 'Error fetching seed data';
         }
@@ -20,10 +20,8 @@ function fetchData() {
     return deferred.promise;
 }
 
-fetchData().then(function(buffer) {
-    var chunks = [],
-        data = buffer.toString(),
-        i = 0,
+function pushChunks(data, chunks) {
+    var i = 0,
         last = 0,
         len = data.length;
 
@@ -34,12 +32,16 @@ fetchData().then(function(buffer) {
 
         last = i;
     }
+}
 
-    var index = 0;
+fetchData().then(function(buffer) {
+    var chunks = [],
+        data = buffer.toString(),
+        index = 0;
 
-    function getNextChunk() {
-        return chunks[(index++) % chunks.length];
-    }
+    function getNextChunk() {return chunks[(index++) % chunks.length];}
+
+    pushChunks(data, chunks);
 
     /**
      * The whole purpose of this server is to create an infinite HTTP response.
@@ -58,22 +60,3 @@ fetchData().then(function(buffer) {
     }).listen(80);
 });
 
-/*
-1... wait
-1,2 -> #1
-1,2,3 -> #2
-1,2,3,4 -> #3
-1,2,3,4,5 -> #1
-
-
-1: lorem ipsum dol   | send to process 1 --> wc - 1
-2: or sit ame        |  | send to process 2 --> wc - 1
-3: t velit verde ipsum  | | send to process 3 --> wc
-4:  dolorem ame           |
-5: t lorem
-
-
- note:
- you need to `pm2 startup ubuntu` and restart the service to run
- properly on port 80
- */

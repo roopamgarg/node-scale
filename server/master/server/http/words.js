@@ -1,7 +1,7 @@
 'use strict';
 
 var http = require('http'),
-    message = require('../message'),
+    monkey = require('../../cluster/monkey'),
 
     numWords = 0;
 
@@ -14,15 +14,15 @@ function update(data) {
 function listen() {
     var server = http.createServer(function(request, response) {
         response.writeHead(200, {'Content-Type': 'text/html'});
-        response.write('<h1>'+numWords+'</h1>');
+        response.write('<h1>' + numWords + '</h1>');
         response.end();
     });
 
     server.listen(80);
 }
 
-exports.create = function(client) {
+exports.initialize = function() {
     listen();
 
-    message.initialize(client, update);
+    monkey.initialize(update);
 };
