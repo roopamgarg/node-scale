@@ -1,5 +1,5 @@
 'use strict';
 
-mmodule.exports = {
+module.exports = {
     WORD_COUNT: 'word-count-protocol'
 };
