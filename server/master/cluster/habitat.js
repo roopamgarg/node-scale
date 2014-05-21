@@ -33,7 +33,7 @@ function initializeMonkeys() {
 }
 
 function computeNewServerIndex() {
-    currentServerIndex = ( currentServerIndex + 1 ) % clusterConfig.workers.length;
+    currentServerIndex = ( currentServerIndex + 1 ) % clusterConfig.ip.workers.length;
 }
 
 function sendInitializationMessage(from) {
@@ -43,7 +43,7 @@ function sendInitializationMessage(from) {
 
             monkey.send({
                 action: actionEnum.INITIALIZE,
-                payload: clusterConfig.workers[currentServerIndex]
+                payload: clusterConfig.ip.workers[currentServerIndex]
             });
         }
     });

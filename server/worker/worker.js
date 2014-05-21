@@ -4,6 +4,7 @@ var WebSocketServer = require('websocket').server,
     http = require('http'),
 
     protocol = require('../../config/protocol'),
+    util = require('./util'),
 
     server, wsServer;
 

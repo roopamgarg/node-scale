@@ -1,8 +1,9 @@
 'use strict';
 
-var socket = require('../../client/websocket/wordCount'),
+var socket = require('../client/websocket/wordCount'),
+    cluster = require('cluster'),
 
-    actionEnum = require('../../config/action');
+    actionEnum = require('../../../config/action');
 
 exports.initialize = function(callback) {
     process.send({action: actionEnum.GET_SERVER_META, from: cluster.worker.id});
@@ -28,6 +29,10 @@ exports.initialize = function(callback) {
                 break;
             case actionEnum.COMPUTE:
                 var current = socket.getCurrent();
+
+                if (!current) {
+                    break;
+                }
 
                 if (current.connection) {
                     current.connection.sendUTF(JSON.stringify(data));

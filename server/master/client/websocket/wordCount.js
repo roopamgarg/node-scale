@@ -1,6 +1,8 @@
 'use strict';
 
-var protocol = require('../../../../config/protocol'),
+var websocket = require('websocket'),
+
+    protocol = require('../../../../config/protocol'),
     actionEnum = require('../../../../config/action'),
 
     client = null;
