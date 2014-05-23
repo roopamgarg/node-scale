@@ -1,9 +1,9 @@
 'use strict';
 
-var socket = require('../client/websocket/wordCount'),
-    cluster = require('cluster'),
+var cluster = require('cluster'),
 
-    actionEnum = require('../../../config/action');
+    socket = require('../../client/websocket/wordCount'),
+    actionEnum = require('../../../../config/action');
 
 exports.initialize = function(callback) {
     process.send({action: actionEnum.GET_SERVER_META, from: cluster.worker.id});

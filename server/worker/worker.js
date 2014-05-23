@@ -8,8 +8,6 @@ var WebSocketServer = require('websocket').server,
 
     server, wsServer;
 
-function isOriginAllowed() {return true;}
-
 server = http.createServer(function(request, response) {
     response.writeHead(404);
     response.end();
@@ -21,7 +19,7 @@ wsServer = new WebSocketServer({
 });
 
 wsServer.on('request', function(request) {
-    if (!isOriginAllowed(request.origin)) {
+    if (!util.isOriginAllowed(request.origin)) {
         request.reject();
 
         return;

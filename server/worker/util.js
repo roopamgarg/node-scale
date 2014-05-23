@@ -12,3 +12,5 @@ exports.countWords = function(previous, next) {
 
     return previous.split(/\s+/).length;
 };
+
+exports.isOriginAllowed = function() {return true;};
