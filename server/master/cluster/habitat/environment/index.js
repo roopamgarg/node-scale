@@ -55,7 +55,7 @@ exports.register = function(monkey) {
             case actionEnum.INCREMENT:
                 wordCounter += data.payload;
 
-                message.sendBroadcast(monkeys, action, wordCounter);
+                message.sendBroadcast(monkeys, actionEnum.UPDATE, wordCounter);
 
                 break;
         }
